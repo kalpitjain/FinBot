@@ -4,7 +4,7 @@ from typing import List
 from models import Customer, Transaction
 
 # Sample customer data
-SAMPLE_SAMPLE_CUSTOMER = Customer(
+SAMPLE_CUSTOMER = Customer(
     customer_id="CUST001",
     name="Kalpit Jain",
     account_number="****1234",

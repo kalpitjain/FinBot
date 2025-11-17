@@ -1,9 +1,10 @@
 import json
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from openai import OpenAI
 from config import OPENAI_API_KEY, SYSTEM_PROMPT
 from data import get_customer, get_all_transactions
+from models import MessageType
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -50,9 +51,9 @@ def prepare_context_data() -> Dict:
         }
 
 
-async def process_query(query: str) -> Dict:
+async def process_query(query: str, conversation_history: List[MessageType] = None) -> Dict:
     """
-    Process user query using OpenAI GPT with transaction context
+    Process user query using OpenAI GPT with transaction context and conversation history
     Returns response text and optional chart data
     """
     # Validate input
@@ -86,13 +87,22 @@ Recent Transactions (last 50):
 Please analyze this data and respond to the user's query with clear insights and analysis."""
 
     try:
+        # Build messages array with conversation history
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        
+        # Add conversation history if available
+        if conversation_history:
+            for msg in conversation_history:
+                role = "user" if msg.isUser else "assistant"
+                messages.append({"role": role, "content": msg.text})
+        
+        # Add current user message
+        messages.append({"role": "user", "content": user_message})
+        
         # Call OpenAI API
         response = client.chat.completions.create(
             model="gpt-4.1",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message}
-            ],
+            messages=messages,
             temperature=0.7,
             max_tokens=2000,
             timeout=30.0

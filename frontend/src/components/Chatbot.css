@@ -171,14 +171,14 @@ html {
 .message {
   display: flex;
   flex-direction: column;
-  max-width: 80%;
+  max-width: 50%;
   width: fit-content;
   min-width: 44px;
-  margin-bottom: 8px;
-  padding: 6px 9px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
   border-radius: var(--radius-message);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  line-height: 1.5;
   word-break: break-word;
   box-shadow: var(--color-shadow-message);
   border: none;
@@ -569,3 +569,310 @@ html::-webkit-scrollbar-track {
   background: var(--color-bg-main);
   border-radius: 8px;
 }
+
+/* Markdown Styles */
+.message.bot .md-paragraph {
+  margin: 0.5em 0;
+  line-height: 1.6;
+}
+
+.message.bot .md-paragraph:first-child {
+  margin-top: 0;
+}
+
+.message.bot .md-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.message.bot .md-h1,
+.message.bot .md-h2,
+.message.bot .md-h3,
+.message.bot .md-h4,
+.message.bot .md-h5,
+.message.bot .md-h6 {
+  margin: 1em 0 0.5em 0;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-accent);
+}
+
+.message.bot .md-h1:first-child,
+.message.bot .md-h2:first-child,
+.message.bot .md-h3:first-child,
+.message.bot .md-h4:first-child,
+.message.bot .md-h5:first-child,
+.message.bot .md-h6:first-child {
+  margin-top: 0;
+}
+
+.message.bot .md-h1 {
+  font-size: 1.5em;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0.3em;
+}
+
+.message.bot .md-h2 {
+  font-size: 1.3em;
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: 0.3em;
+}
+
+.message.bot .md-h3 {
+  font-size: 1.15em;
+}
+
+.message.bot .md-h4 {
+  font-size: 1.05em;
+}
+
+.message.bot .md-h5,
+.message.bot .md-h6 {
+  font-size: 1em;
+}
+
+.message.bot .md-ul,
+.message.bot .md-ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.message.bot .md-li {
+  margin: 0.25em 0;
+  line-height: 1.6;
+}
+
+.message.bot .md-table-wrapper {
+  overflow-x: auto;
+  margin: 1em 0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.message.bot .md-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.message.bot .md-thead {
+  background: var(--color-bg-user-gradient);
+  color: white;
+}
+
+.message.bot .md-th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-accent);
+  white-space: nowrap;
+}
+
+.message.bot .md-td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.message.bot .md-tr:last-child .md-td {
+  border-bottom: none;
+}
+
+.message.bot .md-tbody .md-tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.message.bot .md-tbody .md-tr:hover {
+  background: #f0f4ff;
+  transition: background 0.2s;
+}
+
+.message.bot .md-code-inline {
+  background: #f3f4f6;
+  color: #e83e8c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid #e5e7eb;
+}
+
+.message.bot .md-pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1em 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message.bot .md-code-block {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.85em;
+  line-height: 1.5;
+  display: block;
+  white-space: pre;
+}
+
+.message.bot .md-blockquote {
+  border-left: 4px solid var(--color-accent-light);
+  padding-left: 1em;
+  margin: 1em 0;
+  color: #64748b;
+  font-style: italic;
+  background: #f8fafc;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+}
+
+.message.bot .md-strong {
+  font-weight: 700;
+  color: var(--color-text-bot);
+}
+
+.message.bot .md-em {
+  font-style: italic;
+}
+
+.message.bot .md-hr {
+  border: none;
+  border-top: 2px solid var(--color-border);
+  margin: 1.5em 0;
+}
+
+.message.bot .md-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-bottom 0.2s;
+}
+
+.message.bot .md-link:hover {
+  border-bottom: 1px solid var(--color-accent);
+}
+
+/* Ensure proper spacing for nested elements */
+.message.bot .md-ul .md-ul,
+.message.bot .md-ol .md-ol,
+.message.bot .md-ul .md-ol,
+.message.bot .md-ol .md-ul {
+  margin: 0.25em 0;
+}
+
+/* Mobile responsiveness for tables */
+@media (max-width: 768px) {
+  .message.bot .md-table-wrapper {
+    max-width: 100%;
+  }
+  
+  .message.bot .md-table {
+    font-size: 0.85em;
+  }
+  
+  .message.bot .md-th,
+  .message.bot .md-td {
+    padding: 6px 8px;
+  }
+}
+
+/* Chart Visualization Styles */
+.chart-visual {
+  margin: 1em 0;
+  padding: 1em;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(96, 165, 250, 0.1);
+  border: 1px solid var(--color-border-light);
+  /* max-width: 500px; */
+}
+
+.chart-container {
+  position: relative;
+  margin-bottom: 1em;
+  padding: 0.75em;
+  background: #fafbfc;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-insights {
+  margin-top: 1.5em;
+  padding: 1em 1.2em;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+  border-radius: 8px;
+  border-left: 4px solid var(--color-accent);
+}
+
+.insights-title {
+  margin: 0 0 0.8em 0;
+  font-size: 1.05em;
+  font-weight: 700;
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.insights-list {
+  margin: 0;
+  padding-left: 1.5em;
+  list-style: none;
+}
+
+.insight-item {
+  position: relative;
+  margin: 0.5em 0;
+  line-height: 1.6;
+  color: var(--color-text-bot);
+  font-size: 0.95em;
+  padding-left: 0.5em;
+}
+
+.insight-item::before {
+  content: "→";
+  position: absolute;
+  left: -1em;
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+/* Responsive chart adjustments */
+@media (max-width: 768px) {
+  .chart-visual {
+    padding: 1em;
+  }
+  
+  .chart-container {
+    padding: 0.5em;
+  }
+  
+  .insights-title {
+    font-size: 1em;
+  }
+  
+  .insight-item {
+    font-size: 0.9em;
+  }
+}
+
+/* Animation for chart appearance */
+@keyframes chart-fadein {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.chart-visual {
+  animation: chart-fadein 0.5s cubic-bezier(0.4, 0.8, 0.2, 1);
+}
+
+

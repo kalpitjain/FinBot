@@ -47,8 +47,8 @@ async def handle_chat_request(request: BotRequest):
         
         logger.info(f"Processing query: {user_query[:50]}...")
         
-        # Process the query using AI service
-        result = await process_query(user_query)
+        # Process the query using AI service with conversation history
+        result = await process_query(user_query, request.conversationHistory)
         
         if not result or "response" not in result:
             logger.error("Invalid result from process_query")
