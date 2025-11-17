@@ -32,10 +32,7 @@ app.add_middleware(
 
 @app.post("/getBotResponse")
 async def handle_chat_request(request: BotRequest):
-    """
-    Main chat endpoint for the financial assistant
-    Processes user queries and returns AI-generated responses
-    """
+    # Processes user queries and returns AI-generated responses
     try:
         # Validate input
         user_query = request.userAsk.strip()
@@ -75,7 +72,7 @@ async def health_check():
 
 @app.on_event("startup")
 async def startup_event():
-    """Run validation checks on startup"""
+    # Run validation checks on startup
     logger.info("Starting FinBot API")
     from config import OPENAI_API_KEY
     if not OPENAI_API_KEY:

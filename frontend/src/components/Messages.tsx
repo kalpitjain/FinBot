@@ -14,13 +14,12 @@ const Messages: React.FC<MessagesProps> = ({ messages, isLoading, messageContain
     className="message-container"
     ref={messageContainerRef}
     tabIndex={0}
-    aria-live="polite"
-    aria-label="Chat messages"
-    role="log"
   >
     {messages.map((message: MessageType, index: number) => (
       <MessageBubble key={index} text={message.text} isUser={message.isUser} />
     ))}
+
+    {/* Typing Indicator */}
     {isLoading && (
       <div className="loading-animation" aria-label="Bot is typing">
         <div className="typing-indicator">

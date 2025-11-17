@@ -88,8 +88,8 @@ const Chatbot: React.FC = () => {
   };
 
   return (
-    <div className="chatbot-container" role="main" aria-label="FinBot Chatbot">
-      <div className="chatbot-header" tabIndex={0} aria-label="FinBot header">
+    <div className="chatbot-container" role="main">
+      <div className="chatbot-header" tabIndex={0}>
         <span className="bot-avatar" aria-label="Bot" role="img">
           💰
         </span>

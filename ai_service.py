@@ -24,11 +24,11 @@ def prepare_context_data() -> Dict:
     try:
         customer_info = get_customer()
         all_transactions = get_all_transactions()
-        
+
         # Convert to JSON for context
         customer_data = customer_info.model_dump()
         transactions_data = [transaction.model_dump() for transaction in all_transactions]
-        
+
         context = {
             "customer": customer_data,
             "transactions": transactions_data,
@@ -38,7 +38,7 @@ def prepare_context_data() -> Dict:
                 "end": transactions_data[-1]["date"] if transactions_data else None
             }
         }
-        
+
         return context
     except Exception as e:
         logger.error(f"Error preparing context data: {e}")
@@ -60,16 +60,16 @@ async def process_query(query: str) -> Dict:
         return {
             "response": "Please provide a valid query."
         }
-    
+
     # Check if OpenAI client is available
     if client is None:
         return {
             "response": "AI service is not available. Please check the OpenAI API key configuration."
         }
-    
+
     # Prepare context
     context = prepare_context_data()
-    
+
     # Create user message with context
     user_message = f"""User Query: {query}
 
@@ -84,11 +84,11 @@ Recent Transactions (last 50):
 {json.dumps(context['transactions'][-50:], indent=2)}
 
 Please analyze this data and respond to the user's query with clear insights and analysis."""
-    
+
     try:
         # Call OpenAI API
         response = client.chat.completions.create(
-            model="gpt-4.1",  
+            model="gpt-4.1",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
@@ -97,20 +97,20 @@ Please analyze this data and respond to the user's query with clear insights and
             max_tokens=2000,
             timeout=30.0
         )
-        
+
         if not response.choices or not response.choices[0].message.content:
             raise ValueError("Empty response from OpenAI API")
-        
+
         response_text = response.choices[0].message.content
-        
+
         return {
             "response": response_text.strip()
         }
-        
+
     except Exception as e:
         logger.error(f"Error processing query: {e}", exc_info=True)
         error_message = str(e)
-        
+
         # Provide more user-friendly error messages
         if "rate_limit" in error_message.lower():
             user_message = "API rate limit exceeded. Please try again in a moment."
@@ -120,7 +120,7 @@ Please analyze this data and respond to the user's query with clear insights and
             user_message = "Request timed out. Please try again."
         else:
             user_message = f"I encountered an error processing your request. Please try again."
-        
+
         return {
             "response": user_message
         }

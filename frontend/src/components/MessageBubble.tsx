@@ -23,10 +23,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ text, isUser }) => {
   return (
     <div
       className={`message ${isUser ? 'user' : 'bot'} message-pop`}
-      aria-live={isUser ? undefined : 'polite'}
       tabIndex={0}
-      aria-label={isUser ? 'User message' : 'Bot message'}
-      role="article"
       style={{ position: 'relative' }}
     >
       {regularLines.map((line, index) => (
@@ -34,6 +31,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ text, isUser }) => {
           {parseBoldText(line)}
         </p>
       ))}
+
       {bulletPoints.length > 0 && (
         <ul className="message-bullets" style={{ marginLeft: 0, paddingLeft: '1.2em' }}>
           {bulletPoints.map((line, index) => (

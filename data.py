@@ -6,73 +6,73 @@ from models import Customer, Transaction
 # Sample customer data
 SAMPLE_SAMPLE_CUSTOMER = Customer(
     customer_id="CUST001",
-    name="John Doe",
+    name="Kalpit Jain",
     account_number="****1234",
     account_type="savings",
-    email="john.doe@email.com",
-    phone="+1234567890",
+    email="kalpit.jain@email.com",
+    phone="+91934567890",
     joining_date="2020-01-15"
 )
 
 # Transaction categories with typical amounts and frequencies
 TRANSACTION_CATEGORIES = {
     "Groceries": {
-        "merchants": ["Whole Foods", "Trader Joe's", "Safeway", "Walmart", "Target"],
-        "amount_range": (30, 150),
+        "merchants": ["Big Bazaar", "Reliance Fresh", "DMart", "Spencer's", "Local Kirana"],
+        "amount_range": (300, 3000),
         "frequency": "high",  # Multiple times per week
         "type": "debit"
     },
     "Utilities": {
-        "merchants": ["PG&E Electric", "Water District", "Internet Provider", "Gas Company"],
-        "amount_range": (50, 200),
+        "merchants": ["Tata Power", "Adani Electricity", "BSNL", "MTNL", "Municipal Water"],
+        "amount_range": (500, 3000),
         "frequency": "monthly",
         "type": "debit"
     },
     "Entertainment": {
-        "merchants": ["AMC Theaters", "Spotify", "Netflix", "HBO Max", "Disney+", "Concert Tickets"],
-        "amount_range": (10, 100),
+        "merchants": ["PVR Cinemas", "BookMyShow", "Hotstar", "Netflix India", "JioSaavn"],
+        "amount_range": (100, 1500),
         "frequency": "medium",
         "type": "debit"
     },
     "Transport": {
-        "merchants": ["Uber", "Lyft", "Gas Station", "BART Transit", "Parking Meter"],
-        "amount_range": (5, 60),
+        "merchants": ["Ola", "Uber", "Indian Railways", "Delhi Metro", "Petrol Pump"],
+        "amount_range": (50, 1000),
         "frequency": "high",
         "type": "debit"
     },
     "Dining": {
-        "merchants": ["Starbucks", "Chipotle", "McDonald's", "Olive Garden", "Local Restaurant", "Pizza Hut"],
-        "amount_range": (8, 75),
+        "merchants": ["Swiggy", "Zomato", "Barbeque Nation", "Cafe Coffee Day", "Local Dhaba"],
+        "amount_range": (150, 2500),
         "frequency": "high",
         "type": "debit"
     },
     "Shopping": {
-        "merchants": ["Amazon", "Best Buy", "Macy's", "Nike Store", "Apple Store", "IKEA"],
-        "amount_range": (25, 300),
+        "merchants": ["Amazon India", "Flipkart", "Myntra", "Reliance Trends", "Croma", "Tanishq"],
+        "amount_range": (500, 10000),
         "frequency": "medium",
         "type": "debit"
     },
     "Healthcare": {
-        "merchants": ["CVS Pharmacy", "Doctor's Office", "Health Insurance", "Dentist"],
-        "amount_range": (20, 250),
+        "merchants": ["Apollo Pharmacy", "Practo", "Fortis Hospital", "Max Healthcare", "Local Clinic"],
+        "amount_range": (200, 5000),
         "frequency": "low",
         "type": "debit"
     },
     "Subscriptions": {
-        "merchants": ["Netflix", "Spotify Premium", "Amazon Prime", "Adobe Creative Cloud", "Gym Membership"],
-        "amount_range": (10, 50),
+        "merchants": ["Hotstar Premium", "Amazon Prime India", "JioFiber", "Airtel Xstream", "Gym Membership"],
+        "amount_range": (100, 1000),
         "frequency": "monthly",
         "type": "debit"
     },
     "Salary": {
         "merchants": ["Employer Direct Deposit"],
-        "amount_range": (4500, 5000),
+        "amount_range": (30000, 150000),
         "frequency": "monthly",
         "type": "credit"
     },
     "Rent": {
-        "merchants": ["Property Management"],
-        "amount_range": (1800, 2000),
+        "merchants": ["Landlord", "Property Management"],
+        "amount_range": (8000, 35000),
         "frequency": "monthly",
         "type": "debit"
     }

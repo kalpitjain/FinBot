@@ -1,10 +1,10 @@
 import axios, { AxiosError } from 'axios';
 import { MessageType } from '../types/MessageType';
 
-const API_BASE_URL: string = import.meta.env.VITE_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL: string = 'http://localhost:8000';
 
 // Configure axios defaults
-axios.defaults.timeout = 30000;
+axios.defaults.timeout = 30000; // 30 seconds timeout
 
 export const sendChatMessage = async (
   userAsk: string,

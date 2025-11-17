@@ -7,7 +7,6 @@ interface ChatInputProps {
   sendMessage: () => void;
   isLoading: boolean;
   inputRef: RefObject<HTMLTextAreaElement>;
-  ariaLabel?: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -17,7 +16,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
   sendMessage,
   isLoading,
   inputRef,
-  ariaLabel,
 }) => (
   <div className="input-container">
     <textarea
@@ -31,17 +29,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
       disabled={isLoading}
       ref={inputRef}
       rows={1}
-      aria-label={ariaLabel || 'Type your message'}
-      aria-disabled={isLoading}
       style={{ minHeight: 44, maxHeight: 180, resize: 'vertical' }}
     />
     <span
       className={`send-icon input-buttons${isLoading ? ' disabled' : ''}`}
       onClick={!isLoading ? sendMessage : undefined}
-      aria-label="Send message"
       tabIndex={isLoading ? -1 : 0}
       role="button"
-      aria-disabled={isLoading}
       onKeyDown={(e) => {
         if (!isLoading && (e.key === 'Enter' || e.key === ' ')) {
           sendMessage();

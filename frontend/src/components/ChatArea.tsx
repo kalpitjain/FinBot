@@ -36,7 +36,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
       <button
         className="scroll-to-bottom"
         onClick={scrollToBottom}
-        aria-label="Scroll to latest message"
         type="button"
       >
         ↓
@@ -54,7 +53,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
       sendMessage={sendMessage}
       isLoading={loading}
       inputRef={inputRef}
-      ariaLabel="Type your message and press Enter to send. Use Shift+Enter for a new line."
     />
   </div>
 );

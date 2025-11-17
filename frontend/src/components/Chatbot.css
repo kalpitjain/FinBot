@@ -121,7 +121,6 @@ html {
   position: relative;
   overflow: hidden;
   min-height: 0;
-  max-width: 420px;
   border: 2px solid var(--color-border);
   animation: chatbot-fadein 0.7s cubic-bezier(0.4, 0.8, 0.2, 1);
 }
