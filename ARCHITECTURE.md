@@ -17,12 +17,13 @@ FinBot is a three-tier web application consisting of:
 
 1. **Frontend Layer**: React + TypeScript SPA
 2. **Backend Layer**: FastAPI REST API
-3. **AI Layer**: OpenAI GPT-4 Integration
+3. **AI Layer**: OpenAI GPT-4 Integration with Function Calling (Tools API)
 
 ### Design Principles
 
 - **Separation of Concerns**: Clear boundaries between UI, business logic, and AI processing
 - **Type Safety**: TypeScript frontend + Pydantic backend validation
+- **Dynamic Data Fetching**: GPT intelligently calls tools to fetch only necessary data
 - **Stateless API**: Each request contains all necessary context
 - **Error Resilience**: Comprehensive error handling at all layers
 - **Security First**: Input validation, prompt injection protection, CORS policies
@@ -303,32 +304,61 @@ GET /health
 4. Error handling
 
 #### 2. ai_service.py - Business Logic
-**Responsibility**: AI processing and orchestration
+**Responsibility**: AI processing with function calling orchestration
 
 **Functions**:
 
 ```python
-prepare_context_data() -> Dict
-├─► Gets customer info
-├─► Gets all transactions
-├─► Calculates summaries
-└─► Returns structured context
+execute_function(function_name, arguments) -> str
+├─► Executes tool calls from GPT
+├─► Available functions:
+│   ├─► get_customer_info()
+│   ├─► get_current_week_transactions()
+│   ├─► get_current_month_transactions()
+│   ├─► get_current_year_transactions()
+│   ├─► get_transactions_last_n_days(days)
+│   ├─► get_transactions_last_n_months(months)
+│   └─► get_transactions_by_date_range(start, end)
+└─► Returns JSON-formatted result
 
 process_query(query, history) -> Dict
 ├─► Validates input
-├─► Prepares context
 ├─► Builds message array
 │   ├─► System prompt
 │   ├─► Conversation history
-│   └─► Current query + context
-├─► Calls OpenAI API
+│   └─► Current query
+├─► Calls OpenAI API with tools
+├─► Handles function calling loop:
+│   ├─► GPT requests function call
+│   ├─► Execute function
+│   ├─► Return result to GPT
+│   └─► GPT generates final response
 └─► Returns response
+```
+
+**Function Calling Flow**:
+```
+User Query: "Show me spending last month"
+    │
+    ▼
+GPT analyzes query and decides to call:
+    get_transactions_last_n_months(months=1)
+    │
+    ▼
+execute_function() fetches data
+    │
+    ▼
+Data returned to GPT
+    │
+    ▼
+GPT analyzes the data and generates response
 ```
 
 **Error Handling**:
 - OpenAI API errors (rate limit, auth, timeout)
-- Data preparation errors
+- Function execution errors
 - Response validation
+- Max iterations protection (prevents infinite loops)
 
 #### 3. models.py - Data Layer
 **Responsibility**: Data validation and schema definition
@@ -449,25 +479,35 @@ SYSTEM_PROMPT
    └─► Call ai_service.process_query()
 
 7. AI Service Processing
-   ├─► prepare_context_data()
-   │   ├─► Get customer: data.get_customer()
-   │   ├─► Get transactions: data.get_all_transactions()
-   │   ├─► Calculate summaries
-   │   └─► Return context dict
-   │
    ├─► Build messages array
    │   ├─► System prompt (from config)
    │   ├─► Conversation history (from request)
-   │   └─► Current query + context
+   │   └─► Current query
    │
-   └─► Call OpenAI API
-       ├─► Model: gpt-4.1
-       ├─► Temperature: 0.7
-       ├─► Max tokens: 2000
-       └─► Timeout: 30s
+   ├─► Call OpenAI API with tools
+   │   ├─► Model: gpt-4o
+   │   ├─► Temperature: 0.7
+   │   ├─► Max tokens: 2000
+   │   ├─► Timeout: 30s
+   │   └─► Tools: 7 data-fetching functions
+   │
+   └─► Function Calling Loop
+       ├─► GPT analyzes query
+       ├─► GPT decides which tool(s) to call
+       │   Example: "last month" → get_transactions_last_n_months(1)
+       │
+       ├─► Execute function via execute_function()
+       │   ├─► Parse function name and arguments
+       │   ├─► Call appropriate data function
+       │   └─► Return JSON result
+       │
+       ├─► Send function result back to GPT
+       └─► GPT generates final response with the data
 
 8. OpenAI Processing
-   ├─► Analyze query against transaction data
+   ├─► Analyze query to determine needed data
+   ├─► Call appropriate tool(s) dynamically
+   ├─► Receive and analyze the fetched data
    ├─► Apply system prompt rules
    ├─► Generate contextual response
    └─► Return text response
@@ -519,6 +559,53 @@ Error Occurs (any stage)
 ```
 
 ## Technology Stack
+
+### OpenAI Function Calling (Tools API)
+
+FinBot leverages OpenAI's function calling feature to dynamically fetch data based on user queries. This provides:
+
+**Benefits**:
+- ⚡ **Efficiency**: Only fetches data that's actually needed
+- 💰 **Cost Savings**: Reduces token usage by not sending all data every time
+- 🎯 **Accuracy**: GPT analyzes only relevant data for the query
+- 🔄 **Flexibility**: Handles any time period or date range dynamically
+
+**Tool Definitions**:
+```python
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_transactions_last_n_months",
+            "description": "Get transactions for the last N months...",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "months": {
+                        "type": "integer",
+                        "description": "Number of months to look back"
+                    }
+                },
+                "required": ["months"]
+            }
+        }
+    },
+    # ... 6 more tools
+]
+```
+
+**Example Flow**:
+```
+User: "What did I spend on groceries last month?"
+    ↓
+GPT: Calls get_transactions_last_n_months(months=1)
+    ↓
+Backend: Fetches last month's transactions
+    ↓
+GPT: Analyzes data, filters groceries, calculates total
+    ↓
+Response: "You spent $450 on groceries last month..."
+```
 
 ### Frontend Stack
 

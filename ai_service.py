@@ -1,9 +1,17 @@
 import json
 import logging
 from typing import Dict, Optional, List
+from datetime import datetime, timedelta
 from openai import OpenAI
 from config import OPENAI_API_KEY, SYSTEM_PROMPT
-from data import get_customer, get_all_transactions
+from data import (
+    get_customer, 
+    get_all_transactions,
+    get_transactions_by_date_range,
+    get_current_month_transactions,
+    get_current_week_transactions,
+    get_current_year_transactions
+)
 from models import MessageType
 
 # Configure logging
@@ -19,41 +27,173 @@ except Exception as e:
     logger.error(f"Failed to initialize OpenAI client: {e}")
     client = None
 
-
-def prepare_context_data() -> Dict:
-    """Prepare customer and transaction data as context for the AI"""
-    try:
-        customer_info = get_customer()
-        all_transactions = get_all_transactions()
-
-        # Convert to JSON for context
-        customer_data = customer_info.model_dump()
-        transactions_data = [transaction.model_dump() for transaction in all_transactions]
-
-        context = {
-            "customer": customer_data,
-            "transactions": transactions_data,
-            "transaction_count": len(transactions_data),
-            "date_range": {
-                "start": transactions_data[0]["date"] if transactions_data else None,
-                "end": transactions_data[-1]["date"] if transactions_data else None
+# Define tools/functions for GPT to call
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_transactions_by_date_range",
+            "description": "Get transactions within a specific date range. Use this when the user asks for transactions between specific dates.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "description": "Start date in YYYY-MM-DD format"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "description": "End date in YYYY-MM-DD format"
+                    }
+                },
+                "required": ["start_date", "end_date"]
             }
         }
-
-        return context
-    except Exception as e:
-        logger.error(f"Error preparing context data: {e}")
-        return {
-            "customer": {},
-            "transactions": [],
-            "transaction_count": 0,
-            "date_range": {"start": None, "end": None}
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_transactions_last_n_days",
+            "description": "Get transactions for the last N days. Use this when the user asks for transactions from 'last N days' or 'past N days'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "days": {
+                        "type": "integer",
+                        "description": "Number of days to look back"
+                    }
+                },
+                "required": ["days"]
+            }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_transactions_last_n_months",
+            "description": "Get transactions for the last N months. Use this when the user asks for transactions from 'last N months' or 'past N months' or 'last 1 month'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "months": {
+                        "type": "integer",
+                        "description": "Number of months to look back"
+                    }
+                },
+                "required": ["months"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_month_transactions",
+            "description": "Get all transactions for the current month. Use this when the user asks for 'this month' or 'current month' transactions.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_week_transactions",
+            "description": "Get all transactions for the current week. Use this when the user asks for 'this week' or 'current week' transactions.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_year_transactions",
+            "description": "Get all transactions for the current year. Use this when the user asks for 'this year' or 'current year' or 'year to date' transactions.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_customer_info",
+            "description": "Get customer account details and information. Use this when the user asks about their account, profile, or personal details.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    }
+]
+
+
+def execute_function(function_name: str, arguments: Dict) -> str:
+    """Execute a function call from GPT and return the result as JSON string"""
+    try:
+        logger.info(f"Executing function: {function_name} with args: {arguments}")
+        
+        if function_name == "get_customer_info":
+            customer = get_customer()
+            return json.dumps(customer.model_dump(), indent=2)
+        
+        elif function_name == "get_current_month_transactions":
+            transactions = get_current_month_transactions()
+            return json.dumps([t.model_dump() for t in transactions], indent=2)
+        
+        elif function_name == "get_current_week_transactions":
+            transactions = get_current_week_transactions()
+            return json.dumps([t.model_dump() for t in transactions], indent=2)
+        
+        elif function_name == "get_current_year_transactions":
+            transactions = get_current_year_transactions()
+            return json.dumps([t.model_dump() for t in transactions], indent=2)
+        
+        elif function_name == "get_transactions_by_date_range":
+            start_date = arguments.get("start_date")
+            end_date = arguments.get("end_date")
+            transactions = get_transactions_by_date_range(start_date, end_date)
+            return json.dumps([t.model_dump() for t in transactions], indent=2)
+        
+        elif function_name == "get_transactions_last_n_days":
+            days = arguments.get("days")
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=days)
+            transactions = get_transactions_by_date_range(
+                start_date.strftime("%Y-%m-%d"),
+                end_date.strftime("%Y-%m-%d")
+            )
+            return json.dumps([t.model_dump() for t in transactions], indent=2)
+        
+        elif function_name == "get_transactions_last_n_months":
+            months = arguments.get("months")
+            end_date = datetime.now()
+            # Calculate approximate start date (months * 30 days)
+            start_date = end_date - timedelta(days=months * 30)
+            transactions = get_transactions_by_date_range(
+                start_date.strftime("%Y-%m-%d"),
+                end_date.strftime("%Y-%m-%d")
+            )
+            return json.dumps([t.model_dump() for t in transactions], indent=2)
+        
+        else:
+            return json.dumps({"error": f"Unknown function: {function_name}"})
+    
+    except Exception as e:
+        logger.error(f"Error executing function {function_name}: {e}")
+        return json.dumps({"error": str(e)})
 
 
 async def process_query(query: str, conversation_history: List[MessageType] = None) -> Dict:
     """
-    Process user query using OpenAI GPT with transaction context and conversation history
+    Process user query using OpenAI GPT with function calling for dynamic data fetching
     Returns response text and optional chart data
     """
     # Validate input
@@ -68,24 +208,6 @@ async def process_query(query: str, conversation_history: List[MessageType] = No
             "response": "AI service is not available. Please check the OpenAI API key configuration."
         }
 
-    # Prepare context
-    context = prepare_context_data()
-
-    # Create user message with context
-    user_message = f"""User Query: {query}
-
-Customer Details:
-{json.dumps(context['customer'], indent=2)}
-
-Transaction Data Summary:
-- Total transactions: {context['transaction_count']}
-- Date range: {context['date_range']['start']} to {context['date_range']['end']}
-
-Recent Transactions (last 50):
-{json.dumps(context['transactions'][-50:], indent=2)}
-
-Please analyze this data and respond to the user's query with clear insights and analysis."""
-
     try:
         # Build messages array with conversation history
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -97,24 +219,69 @@ Please analyze this data and respond to the user's query with clear insights and
                 messages.append({"role": role, "content": msg.text})
         
         # Add current user message
-        messages.append({"role": "user", "content": user_message})
+        messages.append({"role": "user", "content": query})
         
-        # Call OpenAI API
-        response = client.chat.completions.create(
-            model="gpt-4.1",
-            messages=messages,
-            temperature=0.7,
-            max_tokens=2000,
-            timeout=30.0
-        )
+        # Initialize conversation loop for function calling
+        max_iterations = 5  # Prevent infinite loops
+        iteration = 0
+        
+        while iteration < max_iterations:
+            iteration += 1
+            
+            # Call OpenAI API with tools
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                tools=TOOLS,
+                tool_choice="auto",
+                temperature=0.7,
+                max_tokens=2000,
+                timeout=30.0
+            )
 
-        if not response.choices or not response.choices[0].message.content:
-            raise ValueError("Empty response from OpenAI API")
+            if not response.choices:
+                raise ValueError("Empty response from OpenAI API")
 
-        response_text = response.choices[0].message.content
-
+            message = response.choices[0].message
+            
+            # Check if GPT wants to call a function
+            if message.tool_calls:
+                # Add assistant's message to conversation
+                messages.append(message)
+                
+                # Process each tool call
+                for tool_call in message.tool_calls:
+                    function_name = tool_call.function.name
+                    function_args = json.loads(tool_call.function.arguments)
+                    
+                    logger.info(f"GPT calling function: {function_name}")
+                    
+                    # Execute the function
+                    function_result = execute_function(function_name, function_args)
+                    
+                    # Add function result to messages
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": function_name,
+                        "content": function_result
+                    })
+                
+                # Continue the loop to get GPT's response after function calls
+                continue
+            
+            # No more function calls, we have the final response
+            if message.content:
+                return {
+                    "response": message.content.strip()
+                }
+            else:
+                raise ValueError("No content in final response")
+        
+        # Max iterations reached
+        logger.warning(f"Max iterations ({max_iterations}) reached in function calling loop")
         return {
-            "response": response_text.strip()
+            "response": "I apologize, but I'm having trouble processing your request. Please try rephrasing your question."
         }
 
     except Exception as e:

@@ -196,8 +196,18 @@ def create_transaction(transaction_id: int, date: datetime, category: str, curre
     )
 
 
-# Generate all transactions
-SAMPLE_TRANSACTIONS = generate_sample_transactions()
+# Cache for generated transactions
+_CACHED_TRANSACTIONS: List[Transaction] = None
+
+
+def initialize_data():
+    """Initialize/generate sample data. Should be called once at server startup."""
+    global _CACHED_TRANSACTIONS
+    if _CACHED_TRANSACTIONS is None:
+        print("Generating sample transaction data...")
+        _CACHED_TRANSACTIONS = generate_sample_transactions()
+        print(f"Generated {len(_CACHED_TRANSACTIONS)} transactions")
+    return _CACHED_TRANSACTIONS
 
 
 def get_customer() -> Customer:
@@ -207,7 +217,9 @@ def get_customer() -> Customer:
 
 def get_all_transactions() -> List[Transaction]:
     """Get all transactions"""
-    return SAMPLE_TRANSACTIONS
+    if _CACHED_TRANSACTIONS is None:
+        initialize_data()
+    return _CACHED_TRANSACTIONS
 
 
 def get_transactions_by_date_range(start_date: str, end_date: str) -> List[Transaction]:
@@ -222,8 +234,11 @@ def get_transactions_by_date_range(start_date: str, end_date: str) -> List[Trans
     if start_date > end_date:
         raise ValueError("start_date must be before or equal to end_date")
     
+    if _CACHED_TRANSACTIONS is None:
+        initialize_data()
+    
     return [
-        transaction for transaction in SAMPLE_TRANSACTIONS 
+        transaction for transaction in _CACHED_TRANSACTIONS 
         if start_date <= transaction.date <= end_date
     ]
 

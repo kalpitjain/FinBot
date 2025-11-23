@@ -79,6 +79,12 @@ async def startup_event():
         logger.warning("WARNING: OPENAI_API_KEY not configured. AI features will not work.")
     else:
         logger.info("OpenAI API key configured")
+    
+    # Initialize transaction data once at startup
+    logger.info("Initializing transaction data...")
+    from data import initialize_data
+    initialize_data()
+    logger.info("Transaction data initialized successfully")
 
 
 if __name__ == "__main__":

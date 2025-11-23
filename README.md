@@ -10,12 +10,14 @@ An AI-powered financial chatbot built with FastAPI, React, and OpenAI GPT-4 that
 ## ✨ Features
 
 - 💬 **Natural Language Chat** - Ask questions in plain English
+- � **Dynamic Data Fetching** - GPT intelligently fetches only the data you need (e.g., "last 1 month", "this week", "Jan to March")
 - 📊 **Transaction Analysis** - Automatic categorization and insights
 - 📈 **Spending Patterns** - Identify trends and unusual expenses
 - 🔍 **Category Breakdown** - See where your money goes
 - 🎯 **Smart Recommendations** - AI-powered financial advice
 - 📱 **Responsive Design** - Works on desktop and mobile
 - 🔒 **Privacy First** - All data stays local (sample data used)
+- 🛠️ **OpenAI Function Calling** - GPT uses tools to fetch precise data based on your queries
 
 ## 🚀 Quick Start
 
@@ -152,6 +154,39 @@ VITE_APP_API_URL=http://localhost:8000
 |--------|----------|-------------|
 | `POST` | `/getBotResponse` | Main chat endpoint - send query, get AI response |
 | `GET` | `/health` | Health check - verify server is running |
+
+## 🤖 How It Works - Dynamic Data Fetching
+
+FinBot uses **OpenAI Function Calling** (Tools API) to dynamically fetch transaction data based on user queries. Instead of sending all transaction data in every request, GPT intelligently calls the appropriate function to retrieve only the data it needs.
+
+### Available Functions
+
+The AI has access to these data-fetching functions:
+
+1. **get_customer_info()** - Retrieves customer account details
+2. **get_current_week_transactions()** - Gets this week's transactions
+3. **get_current_month_transactions()** - Gets this month's transactions
+4. **get_current_year_transactions()** - Gets this year's transactions
+5. **get_transactions_last_n_days(days)** - Gets transactions from the last N days
+6. **get_transactions_last_n_months(months)** - Gets transactions from the last N months
+7. **get_transactions_by_date_range(start_date, end_date)** - Gets transactions between specific dates
+
+### Example Queries
+
+| User Query | Function Called | Description |
+|------------|----------------|-------------|
+| "Show me my spending last month" | `get_transactions_last_n_months(1)` | Fetches only last month's data |
+| "What did I spend this week?" | `get_current_week_transactions()` | Fetches current week only |
+| "Analyze my transactions from January to March" | `get_transactions_by_date_range("2025-01-01", "2025-03-31")` | Fetches specific date range |
+| "Show me expenses from last 7 days" | `get_transactions_last_n_days(7)` | Fetches last 7 days |
+| "What's my account info?" | `get_customer_info()` | Fetches customer details |
+
+### Benefits
+
+- ⚡ **Faster responses** - Only relevant data is fetched and processed
+- 💰 **Cost efficient** - Reduces token usage by not sending unnecessary data
+- 🎯 **More accurate** - GPT analyzes only the data period the user asked about
+- 🔄 **Flexible** - Works with any time period or date range
 
 
 ## 🧪 Development
